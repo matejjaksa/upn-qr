@@ -1,0 +1,9 @@
+.env*.local
+.next/
+node_modules/
+tmp/
+.DS_Store
+examples/
+public/tessdata/
+public/tesseract/
+public/tesseract-core/
