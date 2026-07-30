@@ -10,18 +10,18 @@ import type { ExtractedInvoiceFields } from "../lib/extraction/types";
 import { coercePaymentFields, generateUpnQr, validatePaymentFields, type PaymentFields } from "../lib/upn";
 
 const initialFields: PaymentFields = {
-  payerName: "MATEJ JAKŠA",
-  payerAddress: "KAMNIKARJEVA 13",
-  payerCity: "1291 ŠKOFLJICA",
-  recipientName: "Zavarovalnica Triglav d.d.",
-  recipientAddress: "Miklošičeva cesta 19",
-  recipientCity: "1000 Ljubljana",
-  amount: "160.38",
-  iban: "SI56 0400 1004 8840 944",
-  reference: "SI12 1400670113268",
-  purposeCode: "HLTI",
-  purpose: "ZAVAROVALNA PREMIJA",
-  dueDate: "20.08.2026"
+  payerName: "",
+  payerAddress: "",
+  payerCity: "",
+  recipientName: "",
+  recipientAddress: "",
+  recipientCity: "",
+  amount: "",
+  iban: "",
+  reference: "",
+  purposeCode: "",
+  purpose: "",
+  dueDate: ""
 };
 
 export default function Home() {
