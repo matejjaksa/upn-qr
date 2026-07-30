@@ -11,9 +11,15 @@ export function paymentFieldsFromExtraction(extracted: ExtractedInvoiceFields): 
     recipientCity: extracted.recipientCity ?? "",
     amount: extracted.amount ?? "",
     iban: extracted.iban ?? "",
-    reference: extracted.reference ?? "",
+    reference: defaultMissingReference(extracted.reference),
     purposeCode: extracted.purposeCode ?? "OTHR",
     purpose: extracted.purpose ?? (extracted.invoiceNumber ? `RACUN ${extracted.invoiceNumber}` : ""),
     dueDate: extracted.dueDate ?? ""
   });
+}
+
+function defaultMissingReference(reference: string | null): string {
+  const trimmed = reference?.trim();
+  if (!trimmed) return "SI99";
+  return trimmed;
 }

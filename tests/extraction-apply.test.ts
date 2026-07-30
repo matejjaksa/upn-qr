@@ -34,4 +34,13 @@ describe("applying extracted invoice fields", () => {
     expect(fields.payerAddress).toBe("DOLENJSKA CESTA 324A");
     expect(fields.payerCity).toBe("1291 ŠKOFLJICA");
   });
+
+  it("uses SI99 when the invoice has no reference", () => {
+    const fields = paymentFieldsFromExtraction({
+      ...emptyExtractedFields,
+      reference: null
+    });
+
+    expect(fields.reference).toBe("SI99");
+  });
 });
