@@ -29,8 +29,10 @@ export default function Home() {
   const [qr, setQr] = useState<{ svg: string; payload: string } | null>(null);
   const [status, setStatus] = useState("Upload an invoice, review the fields, generate QR.");
   const [extractionNotes, setExtractionNotes] = useState<string[]>([]);
+  const [hasStarted, setHasStarted] = useState(false);
   const validation = useMemo(() => validatePaymentFields(fields), [fields]);
   const isValid = validation.issues.length === 0;
+  const visibleIssues = hasStarted ? validation.issues : [];
 
   async function generate() {
     try {
@@ -44,11 +46,13 @@ export default function Home() {
   }
 
   function updateFields(next: PaymentFields) {
+    setHasStarted(true);
     setFields(coercePaymentFields(next));
     setQr(null);
   }
 
   function applyExtracted(extracted: ExtractedInvoiceFields, notes: string[]) {
+    setHasStarted(true);
     setFields(paymentFieldsFromExtraction(extracted));
     setQr(null);
     setExtractionNotes(notes);
@@ -70,11 +74,15 @@ export default function Home() {
           </div>
           <div
             className={`inline-flex h-9 items-center gap-2 rounded border px-3 text-sm font-semibold ${
-              isValid ? "border-emerald-300/40 bg-emerald-500/15 text-emerald-100" : "border-amber-300/40 bg-amber-500/15 text-amber-100"
+              !hasStarted
+                ? "border-blue-200/30 bg-white/10 text-blue-100"
+                : isValid
+                  ? "border-emerald-300/40 bg-emerald-500/15 text-emerald-100"
+                  : "border-amber-300/40 bg-amber-500/15 text-amber-100"
             }`}
           >
-            {isValid ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-            {isValid ? "Ready" : `${validation.issues.length} issue${validation.issues.length === 1 ? "" : "s"}`}
+            {!hasStarted ? <UploadCloud className="h-4 w-4" /> : isValid ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+            {!hasStarted ? "Waiting for invoice" : isValid ? "Ready" : `${validation.issues.length} issue${validation.issues.length === 1 ? "" : "s"}`}
           </div>
         </div>
       </header>
@@ -134,8 +142,12 @@ export default function Home() {
                 Validation
               </div>
               <div className="grid gap-2 p-4 text-sm">
-                {validation.issues.length ? (
-                  validation.issues.slice(0, 6).map((issue) => (
+                {!hasStarted ? (
+                  <div className="rounded border border-dashed border-slate-300 bg-slate-50 px-3 py-4 text-center text-slate-600">
+                    Upload an invoice to validate payment fields.
+                  </div>
+                ) : visibleIssues.length ? (
+                  visibleIssues.slice(0, 6).map((issue) => (
                     <div key={`${issue.field}-${issue.message}`} className="rounded border border-red-100 bg-red-50 px-3 py-2 text-red-700">
                       {issue.message}
                     </div>
@@ -149,7 +161,14 @@ export default function Home() {
             </section>
           </div>
 
-          <PaymentForm value={fields} issues={validation.issues} onChange={updateFields} onGenerate={() => void generate()} />
+          <PaymentForm
+            value={fields}
+            issues={visibleIssues}
+            canGenerate={isValid}
+            statusLabel={hasStarted ? undefined : "Waiting"}
+            onChange={updateFields}
+            onGenerate={() => void generate()}
+          />
 
           {qr ? (
             <QrResult fields={fields} svg={qr.svg} payload={qr.payload} />

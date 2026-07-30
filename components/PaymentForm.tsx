@@ -6,6 +6,8 @@ import type { PaymentFields, ValidationIssue } from "../lib/upn";
 type Props = {
   value: PaymentFields;
   issues: ValidationIssue[];
+  canGenerate: boolean;
+  statusLabel?: string;
   onChange: (next: PaymentFields) => void;
   onGenerate: () => void;
 };
@@ -43,8 +45,13 @@ const GROUPS: Array<{
   }
 ];
 
-export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
+export function PaymentForm({ value, issues, canGenerate, statusLabel, onChange, onGenerate }: Props) {
   const issueByField = new Map(issues.map((issue) => [issue.field, issue.message]));
+  const badgeClass = statusLabel
+    ? "bg-white/10 text-blue-100"
+    : issues.length
+      ? "bg-amber-500/20 text-amber-100"
+      : "bg-emerald-500/20 text-emerald-100";
 
   function updateField(name: keyof PaymentFields, fieldValue: string) {
     onChange({ ...value, [name]: fieldValue });
@@ -57,8 +64,8 @@ export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
           <h2 className="text-base font-semibold tracking-wide">Review Payment Fields</h2>
           <p className="text-xs text-blue-100">Edit extracted data before QR generation.</p>
         </div>
-        <div className={`rounded px-2 py-1 text-xs font-semibold ${issues.length ? "bg-amber-500/20 text-amber-100" : "bg-emerald-500/20 text-emerald-100"}`}>
-          {issues.length ? `${issues.length} field${issues.length > 1 ? "s" : ""} need attention` : "Ready"}
+        <div className={`rounded px-2 py-1 text-xs font-semibold ${badgeClass}`}>
+          {statusLabel ?? (issues.length ? `${issues.length} field${issues.length > 1 ? "s" : ""} need attention` : "Ready")}
         </div>
       </div>
 
@@ -99,7 +106,7 @@ export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
         <button
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2b72bd] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#245f9d] disabled:cursor-not-allowed disabled:bg-slate-300"
           onClick={onGenerate}
-          disabled={issues.length > 0}
+          disabled={!canGenerate}
         >
           <QrCode className="h-4 w-4" />
           Generate QR
