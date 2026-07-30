@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="38" fill="#1f3d63"/>
+  <rect x="34" y="28" width="112" height="124" rx="18" fill="#ffffff"/>
+  <path d="M34 58h112" stroke="#d7e0eb" stroke-width="6"/>
+  <path d="M57 84h21v21H57zM103 84h21v21h-21zM57 123h21v21H57z" fill="none" stroke="#1f3d63" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M98 120h13v13H98zM119 120h13v13h-13zM98 143h35" stroke="#1f3d63" stroke-width="9" stroke-linecap="square"/>
+  <text x="90" y="52" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" fill="#e0001b">UPN</text>
+</svg>
