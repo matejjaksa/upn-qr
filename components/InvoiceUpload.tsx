@@ -18,7 +18,7 @@ export function InvoiceUpload({ onExtracted }: Props) {
     data.append("file", file);
 
     try {
-      const response = await fetch("/api/extract", { method: "POST", body: data });
+      const response = await fetch("api/extract", { method: "POST", body: data });
       const json = await response.json();
       if (!response.ok) {
         throw new Error(json?.error ?? "Invoice extraction failed.");
