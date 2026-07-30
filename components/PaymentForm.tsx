@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarDays, CircleAlert, QrCode, Save } from "lucide-react";
 import type { PaymentFields, ValidationIssue } from "../lib/upn";
 
 type Props = {
@@ -9,19 +10,37 @@ type Props = {
   onGenerate: () => void;
 };
 
-const FIELDS: Array<{ section: "Payer" | "Recipient" | "Payment"; name: keyof PaymentFields; label: string; placeholder?: string }> = [
-  { section: "Payer", name: "payerName", label: "Name" },
-  { section: "Payer", name: "payerAddress", label: "Address" },
-  { section: "Payer", name: "payerCity", label: "City" },
-  { section: "Recipient", name: "recipientName", label: "Name" },
-  { section: "Recipient", name: "recipientAddress", label: "Address" },
-  { section: "Recipient", name: "recipientCity", label: "City" },
-  { section: "Payment", name: "amount", label: "Amount", placeholder: "160.38" },
-  { section: "Payment", name: "iban", label: "IBAN", placeholder: "SI56 ..." },
-  { section: "Payment", name: "reference", label: "Reference", placeholder: "SI00 44-614" },
-  { section: "Payment", name: "purposeCode", label: "Purpose code", placeholder: "OTHR" },
-  { section: "Payment", name: "purpose", label: "Purpose", placeholder: "RACUN 44-25" },
-  { section: "Payment", name: "dueDate", label: "Due date", placeholder: "DD.MM.YYYY" }
+const GROUPS: Array<{
+  title: string;
+  fields: Array<{ name: keyof PaymentFields; label: string; placeholder?: string; wide?: boolean }>;
+}> = [
+  {
+    title: "Payer",
+    fields: [
+      { name: "payerName", label: "Name", wide: true },
+      { name: "payerAddress", label: "Address" },
+      { name: "payerCity", label: "City" }
+    ]
+  },
+  {
+    title: "Recipient",
+    fields: [
+      { name: "recipientName", label: "Name", wide: true },
+      { name: "recipientAddress", label: "Address" },
+      { name: "recipientCity", label: "City" }
+    ]
+  },
+  {
+    title: "Payment",
+    fields: [
+      { name: "amount", label: "Amount", placeholder: "160.38" },
+      { name: "iban", label: "IBAN", placeholder: "SI56 ...", wide: true },
+      { name: "reference", label: "Reference", placeholder: "SI00 44-614" },
+      { name: "purposeCode", label: "Purpose code", placeholder: "OTHR" },
+      { name: "purpose", label: "Purpose", placeholder: "RACUN 44-25" },
+      { name: "dueDate", label: "Due date", placeholder: "DD.MM.YYYY" }
+    ]
+  }
 ];
 
 export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
@@ -32,29 +51,59 @@ export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
   }
 
   return (
-    <section className="panel formPanel">
-      {(["Payer", "Recipient", "Payment"] as const).map((section) => (
-        <div className="formSection" key={section}>
-          <h2>{section}</h2>
-          <div className="formGrid">
-            {FIELDS.filter((field) => field.section === section).map((field) => (
-              <label className="field" key={field.name}>
-                <span>{field.label}</span>
-                <input
-                  value={value[field.name]}
-                  placeholder={field.placeholder}
-                  onChange={(event) => updateField(field.name, event.target.value)}
-                />
-                {issueByField.get(field.name) ? <small>{issueByField.get(field.name)}</small> : null}
-              </label>
-            ))}
-          </div>
+    <section className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-[#1f3d63] px-5 py-3 text-white">
+        <div>
+          <h2 className="text-base font-semibold tracking-wide">Payment Details</h2>
+          <p className="text-xs text-blue-100">Review extracted data before generating a UPN QR code.</p>
         </div>
-      ))}
+        <div className="flex items-center gap-2 text-sm text-emerald-100">
+          <Save className="h-4 w-4" />
+          {issues.length ? `${issues.length} field${issues.length > 1 ? "s" : ""} need attention` : "Ready"}
+        </div>
+      </div>
 
-      <button className="generateButton" onClick={onGenerate} disabled={issues.length > 0}>
-        Generate QR
-      </button>
+      <div className="grid gap-5 p-5">
+        {GROUPS.map((group) => (
+          <fieldset key={group.title} className="rounded-md border border-slate-200 bg-slate-50/60 p-4">
+            <legend className="px-2 text-sm font-semibold text-slate-700">{group.title}</legend>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              {group.fields.map((field) => {
+                const issue = issueByField.get(field.name);
+                return (
+                  <label className={field.wide ? "col-span-2 grid gap-1" : "grid gap-1"} key={field.name}>
+                    <span className="text-sm font-medium text-slate-600">{field.label}</span>
+                    <div className="relative">
+                      <input
+                        className={`h-10 w-full rounded border bg-white px-3 text-[15px] font-semibold text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 ${
+                          issue ? "border-red-300 pr-9" : "border-slate-300"
+                        }`}
+                        value={value[field.name]}
+                        placeholder={field.placeholder}
+                        onChange={(event) => updateField(field.name, event.target.value)}
+                      />
+                      {field.name === "dueDate" ? (
+                        <CalendarDays className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
+                      ) : null}
+                      {issue ? <CircleAlert className="absolute right-3 top-2.5 h-4 w-4 text-red-500" /> : null}
+                    </div>
+                    {issue ? <small className="text-xs font-medium text-red-600">{issue}</small> : null}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        ))}
+
+        <button
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2b72bd] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#245f9d] disabled:cursor-not-allowed disabled:bg-slate-300"
+          onClick={onGenerate}
+          disabled={issues.length > 0}
+        >
+          <QrCode className="h-4 w-4" />
+          Generate QR
+        </button>
+      </div>
     </section>
   );
 }

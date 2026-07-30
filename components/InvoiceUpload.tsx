@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText, UploadCloud } from "lucide-react";
 import { useState } from "react";
 import type { ExtractedInvoiceFields, ExtractionResponse } from "../lib/extraction/types";
 
@@ -33,7 +34,9 @@ export function InvoiceUpload({ onExtracted }: Props) {
 
   return (
     <section
-      className={`uploadPanel ${isDragging ? "dragging" : ""}`}
+      className={`rounded-md border bg-white p-4 shadow-sm transition ${
+        isDragging ? "border-blue-500 ring-4 ring-blue-100" : "border-slate-300"
+      }`}
       onDragOver={(event) => {
         event.preventDefault();
         setIsDragging(true);
@@ -45,16 +48,24 @@ export function InvoiceUpload({ onExtracted }: Props) {
         void upload(event.dataTransfer.files[0]);
       }}
     >
-      <strong>Drop invoice PDF or image here</strong>
-      <span>{status}</span>
-      <label>
-        <input
-          type="file"
-          accept="application/pdf,image/png,image/jpeg"
-          onChange={(event) => void upload(event.target.files?.[0])}
-        />
-        Choose file
-      </label>
+      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+        <FileText className="h-4 w-4 text-blue-600" />
+        Invoice Intake
+      </div>
+      <div className="grid min-h-36 place-items-center rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-center">
+        <UploadCloud className="mb-2 h-8 w-8 text-blue-500" />
+        <strong className="text-base text-slate-800">Drop invoice PDF or image here</strong>
+        <span className="mt-1 text-sm text-slate-500">{status}</span>
+        <label className="mt-4 inline-flex h-9 cursor-pointer items-center rounded bg-[#2b72bd] px-4 text-sm font-semibold text-white hover:bg-[#245f9d]">
+          <input
+            className="hidden"
+            type="file"
+            accept="application/pdf,image/png,image/jpeg"
+            onChange={(event) => void upload(event.target.files?.[0])}
+          />
+          Choose file
+        </label>
+      </div>
     </section>
   );
 }
