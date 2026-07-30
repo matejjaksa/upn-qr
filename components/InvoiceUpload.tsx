@@ -50,13 +50,13 @@ export function InvoiceUpload({ onExtracted }: Props) {
     >
       <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
         <FileText className="h-4 w-4 text-blue-600" />
-        Invoice Intake
+        Invoice Upload
       </div>
-      <div className="grid min-h-36 place-items-center rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-center">
-        <UploadCloud className="mb-2 h-8 w-8 text-blue-500" />
-        <strong className="text-base text-slate-800">Drop invoice PDF or image here</strong>
-        <span className="mt-1 text-sm text-slate-500">{status}</span>
-        <label className="mt-4 inline-flex h-9 cursor-pointer items-center rounded bg-[#2b72bd] px-4 text-sm font-semibold text-white hover:bg-[#245f9d]">
+      <div className="grid min-h-44 place-items-center rounded border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center">
+        <UploadCloud className="mb-3 h-10 w-10 text-blue-500" />
+        <strong className="text-lg text-slate-900">{status.startsWith("Drop ") ? "Drop invoice here" : status}</strong>
+        <span className="mt-1 text-sm text-slate-500">PDF, JPG or PNG</span>
+        <label className="mt-5 inline-flex h-10 cursor-pointer items-center rounded bg-[#2b72bd] px-5 text-sm font-semibold text-white hover:bg-[#245f9d]">
           <input
             className="hidden"
             type="file"

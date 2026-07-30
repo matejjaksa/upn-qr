@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CircleAlert, QrCode, Save } from "lucide-react";
+import { CalendarDays, CircleAlert, QrCode } from "lucide-react";
 import type { PaymentFields, ValidationIssue } from "../lib/upn";
 
 type Props = {
@@ -54,24 +54,25 @@ export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
     <section className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-200 bg-[#1f3d63] px-5 py-3 text-white">
         <div>
-          <h2 className="text-base font-semibold tracking-wide">Payment Details</h2>
-          <p className="text-xs text-blue-100">Review extracted data before generating a UPN QR code.</p>
+          <h2 className="text-base font-semibold tracking-wide">Review Payment Fields</h2>
+          <p className="text-xs text-blue-100">Edit extracted data before QR generation.</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-emerald-100">
-          <Save className="h-4 w-4" />
+        <div className={`rounded px-2 py-1 text-xs font-semibold ${issues.length ? "bg-amber-500/20 text-amber-100" : "bg-emerald-500/20 text-emerald-100"}`}>
           {issues.length ? `${issues.length} field${issues.length > 1 ? "s" : ""} need attention` : "Ready"}
         </div>
       </div>
 
-      <div className="grid gap-5 p-5">
+      <div className="grid gap-4 p-5">
         {GROUPS.map((group) => (
-          <fieldset key={group.title} className="rounded-md border border-slate-200 bg-slate-50/60 p-4">
-            <legend className="px-2 text-sm font-semibold text-slate-700">{group.title}</legend>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          <section key={group.title} className="overflow-hidden rounded-md border border-slate-200">
+            <div className="border-b border-slate-200 bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-slate-700">
+              {group.title}
+            </div>
+            <div className="grid grid-cols-1 gap-x-4 gap-y-3 p-4 md:grid-cols-2">
               {group.fields.map((field) => {
                 const issue = issueByField.get(field.name);
                 return (
-                  <label className={field.wide ? "col-span-2 grid gap-1" : "grid gap-1"} key={field.name}>
+                  <label className={field.wide ? "grid gap-1 md:col-span-2" : "grid gap-1"} key={field.name}>
                     <span className="text-sm font-medium text-slate-600">{field.label}</span>
                     <div className="relative">
                       <input
@@ -92,7 +93,7 @@ export function PaymentForm({ value, issues, onChange, onGenerate }: Props) {
                 );
               })}
             </div>
-          </fieldset>
+          </section>
         ))}
 
         <button
