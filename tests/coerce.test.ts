@@ -21,6 +21,16 @@ describe("payment field coercion", () => {
     expect(coerceReference("12 2026013603800")).toBe("SI12 2026013603800");
   });
 
+  it("defaults bare invoice-style sklic values to SI00", () => {
+    expect(coerceReference("011-2026")).toBe("SI00 011-2026");
+    expect(coerceReference("26-80522-005385")).toBe("SI00 26-80522-005385");
+  });
+
+  it("repairs extracted SI-prefixed invoice numbers that are missing an explicit model", () => {
+    expect(coerceReference("SI011-2026")).toBe("SI00 011-2026");
+    expect(coerceReference("SI26-80522-005385")).toBe("SI00 26-80522-005385");
+  });
+
   it("shortens long recipient names before validation", () => {
     const coerced = coercePaymentFields({
       ...validFields,

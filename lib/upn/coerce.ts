@@ -31,11 +31,29 @@ export function coercePaymentFields(input: PaymentFields): PaymentFields {
 export function coerceReference(input: string): string {
   const trimmed = input.trim();
   if (!trimmed) return trimmed;
-  if (/^(SI|RF)/i.test(trimmed)) return trimmed.toUpperCase();
-  if (/^\d{2}[\s-]?[A-Z0-9][A-Z0-9\s-]*$/i.test(trimmed)) {
-    return `SI${trimmed}`.toUpperCase();
+  const upper = trimmed.toUpperCase();
+
+  if (/^RF/i.test(trimmed)) return upper;
+
+  if (/^SI/i.test(trimmed)) {
+    return coerceSlovenianReferenceBody(upper.slice(2).trim());
   }
-  return trimmed.toUpperCase();
+
+  if (/^\d[\dA-Z\s-]*$/i.test(trimmed)) {
+    if (/^\d{2}\s+\S/.test(upper)) return `SI${upper}`;
+    return `SI00 ${upper}`;
+  }
+
+  return upper;
+}
+
+function coerceSlovenianReferenceBody(body: string): string {
+  if (!body) return "SI99";
+  if (/^99$/.test(body)) return "SI99";
+  if (/^00(?:[\s-]|$)/.test(body)) return `SI${body}`;
+  if (/^\d{2}\s+\S/.test(body)) return `SI${body}`;
+  if (/^\d{2}[A-Z0-9]{10,}$/.test(body)) return `SI${body}`;
+  return `SI00 ${body}`;
 }
 
 function coerceText(input: string, limit = Number.POSITIVE_INFINITY): string {

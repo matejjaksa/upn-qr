@@ -43,4 +43,20 @@ describe("applying extracted invoice fields", () => {
 
     expect(fields.reference).toBe("SI99");
   });
+
+  it("repairs invoice-style references returned by extraction", () => {
+    expect(
+      paymentFieldsFromExtraction({
+        ...emptyExtractedFields,
+        reference: "SI011-2026"
+      }).reference
+    ).toBe("SI00 011-2026");
+
+    expect(
+      paymentFieldsFromExtraction({
+        ...emptyExtractedFields,
+        reference: "SI26-80522-005385"
+      }).reference
+    ).toBe("SI00 26-80522-005385");
+  });
 });
