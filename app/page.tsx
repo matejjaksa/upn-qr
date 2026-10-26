@@ -3,11 +3,12 @@
 import packageInfo from "../package.json";
 import { useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, FileText, QrCode, ShieldCheck, UploadCloud } from "lucide-react";
+import { ConversionCost } from "../components/ConversionCost";
 import { InvoiceUpload } from "../components/InvoiceUpload";
 import { PaymentForm } from "../components/PaymentForm";
 import { QrResult } from "../components/QrResult";
 import { paymentFieldsFromExtraction } from "../lib/extraction/apply";
-import type { ExtractedInvoiceFields } from "../lib/extraction/types";
+import type { ConversionCost as Cost, ExtractedInvoiceFields } from "../lib/extraction/types";
 import { coercePaymentFields, generateUpnQr, validatePaymentFields, type PaymentFields } from "../lib/upn";
 
 const initialFields: PaymentFields = {
@@ -29,6 +30,7 @@ export default function Home() {
   const [fields, setFields] = useState<PaymentFields>(initialFields);
   const [qr, setQr] = useState<{ svg: string; payload: string } | null>(null);
   const [status, setStatus] = useState("Upload an invoice, review the fields, generate QR.");
+  const [conversionCost, setConversionCost] = useState<Cost | null>(null);
   const [extractionNotes, setExtractionNotes] = useState<string[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
   const validation = useMemo(() => validatePaymentFields(fields), [fields]);
@@ -52,11 +54,12 @@ export default function Home() {
     setQr(null);
   }
 
-  function applyExtracted(extracted: ExtractedInvoiceFields, notes: string[]) {
+  function applyExtracted(extracted: ExtractedInvoiceFields, notes: string[], cost: Cost) {
     setHasStarted(true);
     setFields(paymentFieldsFromExtraction(extracted));
     setQr(null);
     setExtractionNotes(notes);
+    setConversionCost(cost);
     setStatus("Invoice extracted. Review the fields before generating QR.");
   }
 
@@ -123,6 +126,7 @@ export default function Home() {
                 Extraction
               </div>
               <div className="grid gap-2 p-4 text-sm text-slate-600">
+                {conversionCost && <ConversionCost cost={conversionCost} />}
                 {extractionNotes.length ? (
                   extractionNotes.map((note) => (
                     <span key={note} className="rounded border border-slate-200 bg-slate-50 px-3 py-2">
@@ -172,7 +176,7 @@ export default function Home() {
           />
 
           {qr ? (
-            <QrResult fields={fields} svg={qr.svg} payload={qr.payload} />
+            <QrResult cost={conversionCost} fields={fields} svg={qr.svg} payload={qr.payload} />
           ) : (
             <section className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm">
               <div className="border-b border-slate-200 bg-[#1f3d63] px-5 py-3 text-white">

@@ -1,5 +1,6 @@
 import { invoiceExtractionSchema } from "./schema";
-import type { ExtractedInvoiceFields } from "./types";
+import { conversionCost } from "./cost";
+import type { ExtractedInvoiceFields, InvoiceExtraction } from "./types";
 
 const extractionPrompt = `Extract Slovenian UPN payment fields from this invoice.
 
@@ -21,10 +22,14 @@ Rules:
 - Preserve normal display characters; deterministic QR code normalization happens elsewhere.`;
 
 export async function extractFieldsFromText(text: string): Promise<ExtractedInvoiceFields> {
-  return extractWithOpenAi([{ type: "input_text", text: `${extractionPrompt}\n\nInvoice text:\n${text}` }]);
+  return (await extractWithOpenAi([{ type: "input_text", text: `${extractionPrompt}\n\nInvoice text:\n${text}` }])).fields;
 }
 
 export async function extractFieldsFromPdf(bytes: Buffer, filename: string): Promise<ExtractedInvoiceFields> {
+  return (await extractInvoiceFromPdf(bytes, filename)).fields;
+}
+
+export async function extractInvoiceFromPdf(bytes: Buffer, filename: string): Promise<InvoiceExtraction> {
   return extractWithOpenAi([
     {
       type: "input_file",
@@ -37,6 +42,10 @@ export async function extractFieldsFromPdf(bytes: Buffer, filename: string): Pro
 }
 
 export async function extractFieldsFromImage(bytes: Buffer, mimeType: string): Promise<ExtractedInvoiceFields> {
+  return (await extractInvoiceFromImage(bytes, mimeType)).fields;
+}
+
+export async function extractInvoiceFromImage(bytes: Buffer, mimeType: string): Promise<InvoiceExtraction> {
   const dataUrl = `data:${mimeType};base64,${bytes.toString("base64")}`;
   return extractWithOpenAi([
     { type: "input_text", text: extractionPrompt },
@@ -44,12 +53,13 @@ export async function extractFieldsFromImage(bytes: Buffer, mimeType: string): P
   ]);
 }
 
-async function extractWithOpenAi(content: Array<Record<string, string>>): Promise<ExtractedInvoiceFields> {
+async function extractWithOpenAi(content: Array<Record<string, string>>): Promise<InvoiceExtraction> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OPENAI_API_KEY is not set. Add it to your local environment before extracting invoices.");
   }
 
+  const model = process.env.OPENAI_EXTRACTION_MODEL ?? "gpt-5.6-sol";
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -57,7 +67,7 @@ async function extractWithOpenAi(content: Array<Record<string, string>>): Promis
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: process.env.OPENAI_EXTRACTION_MODEL ?? "gpt-5.6-sol",
+      model,
       input: [{ role: "user", content }],
       text: {
         format: {
@@ -80,7 +90,10 @@ async function extractWithOpenAi(content: Array<Record<string, string>>): Promis
     throw new Error("OpenAI response did not include structured invoice fields.");
   }
 
-  return JSON.parse(outputText) as ExtractedInvoiceFields;
+  return {
+    fields: JSON.parse(outputText) as ExtractedInvoiceFields,
+    cost: conversionCost(json.model ?? model, json.usage, json.service_tier)
+  };
 }
 
 function extractOutputText(response: unknown): string | null {

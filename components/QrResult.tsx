@@ -1,15 +1,18 @@
 "use client";
 
+import { ConversionCost } from "./ConversionCost";
+import type { ConversionCost as Cost } from "../lib/extraction/types";
 import { ClipboardCopy, Download, QrCode } from "lucide-react";
 import { displayAmount, formatIbanForDisplay, type PaymentFields } from "../lib/upn";
 
 type Props = {
   fields: PaymentFields;
+  cost: Cost | null;
   svg: string;
   payload: string;
 };
 
-export function QrResult({ fields, svg, payload }: Props) {
+export function QrResult({ fields, svg, payload, cost }: Props) {
   const paymentData = [
     fields.recipientName,
     displayAmount(fields.amount),
@@ -53,6 +56,7 @@ export function QrResult({ fields, svg, payload }: Props) {
       </div>
 
       <div className="p-5">
+        {cost && <div className="mb-4"><ConversionCost cost={cost} /></div>}
         <div className="grid gap-1 rounded-md border border-slate-200 bg-slate-50 p-4">
           <strong className="text-lg text-slate-900">{fields.recipientName}</strong>
           <b className="text-3xl text-[#1f3d63]">{displayAmount(fields.amount)}</b>

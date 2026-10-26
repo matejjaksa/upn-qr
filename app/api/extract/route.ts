@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { extractFieldsFromImage, extractFieldsFromPdf } from "../../../lib/extraction/openai";
+import { extractInvoiceFromImage, extractInvoiceFromPdf } from "../../../lib/extraction/openai";
 import type { ExtractionResponse } from "../../../lib/extraction/types";
 
 export const runtime = "nodejs";
@@ -18,14 +18,14 @@ export async function POST(request: Request) {
 
     if (mimeType === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
       notes.push("Used OpenAI PDF file input; the API extracts PDF text and page images internally.");
-      const fields = await extractFieldsFromPdf(buffer, file.name || "invoice.pdf");
-      const response: ExtractionResponse = { fields, source: "pdf-text", notes };
+      const result = await extractInvoiceFromPdf(buffer, file.name || "invoice.pdf");
+      const response: ExtractionResponse = { ...result, source: "pdf-text", notes };
       return NextResponse.json(response);
     }
 
     if (mimeType === "image/jpeg" || mimeType === "image/png") {
-      const fields = await extractFieldsFromImage(buffer, mimeType);
-      const response: ExtractionResponse = { fields, source: "image", notes };
+      const result = await extractInvoiceFromImage(buffer, mimeType);
+      const response: ExtractionResponse = { ...result, source: "image", notes };
       return NextResponse.json(response);
     }
 

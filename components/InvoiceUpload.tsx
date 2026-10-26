@@ -2,10 +2,10 @@
 
 import { FileText, UploadCloud } from "lucide-react";
 import { useRef, useState } from "react";
-import type { ExtractedInvoiceFields, ExtractionResponse } from "../lib/extraction/types";
+import type { ConversionCost, ExtractedInvoiceFields, ExtractionResponse } from "../lib/extraction/types";
 
 type Props = {
-  onExtracted: (fields: ExtractedInvoiceFields, notes: string[]) => void;
+  onExtracted: (fields: ExtractedInvoiceFields, notes: string[], cost: ConversionCost) => void;
 };
 
 export function InvoiceUpload({ onExtracted }: Props) {
@@ -34,7 +34,7 @@ export function InvoiceUpload({ onExtracted }: Props) {
         throw new Error(json?.error ?? "Invoice extraction failed.");
       }
       const result = json as ExtractionResponse;
-      onExtracted(result.fields, [`Source: ${result.source}`, ...result.notes]);
+      onExtracted(result.fields, [`Source: ${result.source}`, ...result.notes], result.cost);
       setStatus("Extraction complete. Verify the form before generating.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Invoice extraction failed.");
