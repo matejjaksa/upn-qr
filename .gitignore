@@ -7,3 +7,5 @@ examples/
 public/tessdata/
 public/tesseract/
 public/tesseract-core/
+
+*.tsbuildinfo

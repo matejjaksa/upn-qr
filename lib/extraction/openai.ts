@@ -14,6 +14,7 @@ Rules:
 - reference is the payment reference/sklic, not merely an invoice number unless the invoice instructs using it as reference.
 - when an invoice says to use the invoice number or sklic but no SI/RF model is printed, return the reference as SI00 plus that number, for example SI00 011-2026.
 - do not infer the SI model from the first two digits of an invoice number or sklic number. For example 26-80522-005385 should be SI00 26-80522-005385 unless another model is explicitly printed.
+- preserve hyphens within the reference. An explicit two-digit model before the reference is the SI model: Sklic: 00 122600162-39554228 means SI00 122600162-39554228.
 - dueDate must be DD.MM.YYYY when present.
 - purpose should be short and conservative, e.g. RACUN 44-25.
 - purposeCode defaults to OTHR only when no explicit purpose code is visible.

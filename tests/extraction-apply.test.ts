@@ -35,6 +35,13 @@ describe("applying extracted invoice fields", () => {
     expect(fields.payerCity).toBe("1291 ŠKOFLJICA");
   });
 
+  it("preserves the explicit model and hyphen from the Rekar invoice", () => {
+    expect(paymentFieldsFromExtraction({
+      ...emptyExtractedFields,
+      reference: "00 122600162-39554228"
+    }).reference).toBe("SI00 122600162-39554228");
+  });
+
   it("uses SI99 when the invoice has no reference", () => {
     const fields = paymentFieldsFromExtraction({
       ...emptyExtractedFields,

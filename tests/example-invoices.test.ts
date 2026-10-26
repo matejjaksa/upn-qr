@@ -64,7 +64,7 @@ const examples: Array<{
     expected: {
       amount: "00000187000",
       iban: "SI56020860016907125",
-      reference: "SI000152025",
+      reference: "SI00015-2025",
       recipient: "AEROKLUB POSTOJNA"
     }
   },
@@ -88,7 +88,7 @@ const examples: Array<{
     expected: {
       amount: "00001364940",
       iban: "SI56047500002256950",
-      reference: "SI0044614",
+      reference: "SI0044-614",
       recipient: "GRAMAT KACIC D.O.O."
     }
   }

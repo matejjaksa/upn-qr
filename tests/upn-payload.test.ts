@@ -29,8 +29,20 @@ describe("UPN payload", () => {
     expect(formatAmount("2555.42")).toBe("00000255542");
     expect(formatAmount("13649.40")).toBe("00001364940");
     expect(formatAmount("13.649,40 EUR")).toBe("00001364940");
-    expect(normalizeReference("SI00 44-614")).toBe("SI0044614");
-    expect(normalizeReference("SI00 26-900-0373")).toBe("SI00269000373");
+    expect(normalizeReference("SI00 44-614")).toBe("SI0044-614");
+    expect(normalizeReference("SI00 26-900-0373")).toBe("SI0026-900-0373");
+  });
+
+  it("preserves the Rekar invoice reference in the generated QR", () => {
+    const qr = buildUpnPayload(payment({
+      reference: "SI00 122600162-39554228",
+      amount: "571.81",
+      iban: "SI56 6100 0001 0631 838"
+    }));
+
+    expect(qr.payload.split("\n")[15]).toBe("SI00122600162-39554228");
+    const lines = qr.payload.split("\n");
+    expect(Number(lines[19])).toBe(byteLength(lines.slice(0, 19).join("\n") + "\n"));
   });
 
   it("builds Triglav payload with ASCII text", () => {
@@ -75,7 +87,7 @@ describe("UPN payload", () => {
     );
 
     expect(built.normalized.amount).toBe("00000187000");
-    expect(built.normalized.reference).toBe("SI000152025");
+    expect(built.normalized.reference).toBe("SI00015-2025");
   });
 
   it("builds Strle Svetila payload", () => {
@@ -94,7 +106,7 @@ describe("UPN payload", () => {
 
     expect(built.payload).toContain("MASERA SPASICEVA ULICA 8");
     expect(built.normalized.amount).toBe("00000255542");
-    expect(built.normalized.reference).toBe("SI00269000373");
+    expect(built.normalized.reference).toBe("SI0026-900-0373");
   });
 
   it("builds Gramat Kacic payload", () => {
@@ -116,6 +128,6 @@ describe("UPN payload", () => {
     expect(built.payload).toContain("GRAMAT KACIC D.O.O.");
     expect(built.normalized.amount).toBe("00001364940");
     expect(built.normalized.iban).toBe("SI56047500002256950");
-    expect(built.normalized.reference).toBe("SI0044614");
+    expect(built.normalized.reference).toBe("SI0044-614");
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import packageInfo from "../package.json";
 import { useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, FileText, QrCode, ShieldCheck, UploadCloud } from "lucide-react";
 import { InvoiceUpload } from "../components/InvoiceUpload";
@@ -68,7 +69,7 @@ export default function Home() {
               UPN
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-wide">UPN QR Generator</h1>
+              <h1 className="text-xl font-bold tracking-wide">UPN QR Generator <span className="ml-2 text-xs font-normal tracking-normal text-blue-100">v{packageInfo.version}</span></h1>
               <p className="text-sm text-blue-100">{status}</p>
             </div>
           </div>
